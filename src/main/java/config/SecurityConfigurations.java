@@ -1,5 +1,7 @@
 package com.KimJesus.forohub.config;
 
+import com.KimJesus.forohub.security.JwtAuthenticationFilter;
+import com.KimJesus.forohub.service.TokenService;
 import com.KimJesus.forohub.service.UsuarioService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,24 +13,31 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class SecurityConfigurations {
 
     private final UsuarioService usuarioService;
+    private final TokenService tokenService;
 
-    public SecurityConfigurations(UsuarioService usuarioService) {
+    public SecurityConfigurations(UsuarioService usuarioService, TokenService tokenService) {
         this.usuarioService = usuarioService;
+        this.tokenService = tokenService;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable()
+        JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(tokenService);
+
+        http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/auth/**").permitAll() // Rutas públicas
+                        .anyRequest().authenticated()           // Rutas protegidas
                 )
-                .httpBasic();
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
@@ -50,4 +59,3 @@ public class SecurityConfigurations {
         return new BCryptPasswordEncoder();
     }
 }
-
