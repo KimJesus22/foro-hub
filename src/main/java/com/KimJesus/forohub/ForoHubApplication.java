@@ -1,4 +1,4 @@
-package com.KimJesus.forohub.foro_hub;
+package com.KimJesus.forohub;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

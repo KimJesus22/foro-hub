@@ -1,0 +1,16 @@
+### Crear un tópico
+POST http://localhost:8080/api/topicos
+Content-Type: application/json
+
+{
+  "titulo": "Primera pregunta",
+  "mensaje": "¿Cómo inicio el proyecto?",
+  "autor": "KimJesus",
+  "curso": "Foro Hub"
+}
+
+### Listar todos los tópicos
+GET http://localhost:8080/api/topicos
+
+### Obtener tópico por id (ejemplo id=1)
+GET http://localhost:8080/api/topicos/1

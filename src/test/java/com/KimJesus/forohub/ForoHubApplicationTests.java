@@ -1,4 +1,4 @@
-package com.KimJesus.forohub.foro_hub;
+package com.KimJesus.forohub;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
