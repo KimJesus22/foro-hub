@@ -5,6 +5,7 @@ import com.KimJesus.forohub.service.TokenService;
 import com.KimJesus.forohub.service.UsuarioService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -14,7 +15,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.http.HttpMethod;
 
 @Configuration
 public class SecurityConfigurations {
@@ -33,6 +33,7 @@ public class SecurityConfigurations {
 
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.GET, "/").permitAll() // Permitir acceso a la raíz
                         .requestMatchers("/auth/**").permitAll()             // login/registro públicos
                         .requestMatchers(HttpMethod.GET, "/topicos").permitAll()
                         // ⬇️ Ajusta una de las dos líneas según prefieras roles o authorities
