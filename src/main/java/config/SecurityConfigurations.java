@@ -33,11 +33,19 @@ public class SecurityConfigurations {
 
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, "/").permitAll() // Permitir acceso a la raíz
-                        .requestMatchers("/auth/**").permitAll()             // login/registro públicos
+                        // Permitir acceso a recursos estáticos y rutas públicas
+                        .requestMatchers(
+                                "/",
+                                "/index.html",
+                                "/favicon.ico",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**"
+                        ).permitAll()
+                        .requestMatchers("/auth/**").permitAll() // login/registro públicos
                         .requestMatchers(HttpMethod.GET, "/topicos").permitAll()
                         // ⬇️ Ajusta una de las dos líneas según prefieras roles o authorities
-                        .requestMatchers(HttpMethod.POST, "/topicos").hasRole("ADMIN")           // usa ROLE_ADMIN
+                        .requestMatchers(HttpMethod.POST, "/topicos").hasRole("ADMIN") // usa ROLE_ADMIN
                         // .requestMatchers(HttpMethod.POST, "/topicos").hasAuthority("TOPICOS_WRITE") // o authority
                         .anyRequest().authenticated()
                 )
