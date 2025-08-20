@@ -1,5 +1,6 @@
 package com.KimJesus.forohub.config;
 
+import com.KimJesus.forohub.model.Role;
 import com.KimJesus.forohub.model.Usuario;
 import com.KimJesus.forohub.repository.UsuarioRepository;
 import org.slf4j.Logger;
@@ -32,7 +33,7 @@ public class DataLoader implements CommandLineRunner {
             Usuario usuario = new Usuario();
             usuario.setLogin(login);
             usuario.setPassword(passwordEncoder.encode(rawPassword)); // encripta con BCrypt
-            usuario.setRole("ROLE_USER");
+            usuario.setRole(Role.USER);
 
             usuarioRepository.save(usuario);
             log.info("✅ Usuario de prueba creado: {} / contraseña: {}", login, rawPassword);
