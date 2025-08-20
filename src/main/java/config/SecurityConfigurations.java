@@ -37,6 +37,7 @@ public class SecurityConfigurations {
                         .requestMatchers(
                                 "/",
                                 "/index.html",
+                                "/topicos.html", // <-- AÑADIDO
                                 "/favicon.ico",
                                 "/css/**",
                                 "/js/**",

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tópicos del Foro</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; margin: 2em; background-color: #f4f4f4; color: #333; }
+        h1, h2 { color: #0056b3; }
+        #loading, #error { text-align: center; font-size: 1.2em; padding: 1em; }
+        #error { color: #d9534f; }
+        .topico { border-left: 4px solid #0056b3; padding-left: 1em; margin-bottom: 1.5em; }
+        table { width: 100%; border-collapse: collapse; margin-top: 2em; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #0056b3; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+
+    <h1>Tópicos Recientes del Foro</h1>
+
+    <div id="loading">Cargando tópicos...</div>
+    <div id="error" style="display:none;"></div>
+
+    <h2>Lista de Tópicos</h2>
+    <div id="lista-topicos"></div>
+
+    <h2>Tabla de Tópicos</h2>
+    <table id="tabla-topicos">
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Autor</th>
+                <th>Curso</th>
+                <th>Fecha de Creación</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Los datos se insertarán aquí -->
+        </tbody>
+    </table>
+
+    <script>
+        // La URL base de la API (ajusta si es necesario)
+        const API_URL = window.location.origin;
+
+        async function fetchTopicos() {
+            const loadingDiv = document.getElementById('loading');
+            const errorDiv = document.getElementById('error');
+            const listaDiv = document.getElementById('lista-topicos');
+            const tablaBody = document.querySelector('#tabla-topicos tbody');
+
+            try {
+                const response = await fetch(`${API_URL}/topicos`);
+
+                if (!response.ok) {
+                    throw new Error(`Error en la petición: ${response.statusText}`);
+                }
+
+                const topicos = await response.json();
+
+                // Ocultar mensaje de carga
+                loadingDiv.style.display = 'none';
+
+                // Limpiar contenedores
+                listaDiv.innerHTML = '';
+                tablaBody.innerHTML = '';
+
+                if (topicos.length === 0) {
+                    listaDiv.innerHTML = '<p>No hay tópicos para mostrar.</p>';
+                    return;
+                }
+
+                // Poblar la lista y la tabla
+                topicos.forEach(topico => {
+                    // Formatear fecha
+                    const fecha = new Date(topico.fechaCreacion).toLocaleString();
+
+                    // Añadir a la lista
+                    const divTopico = document.createElement('div');
+                    divTopico.className = 'topico';
+                    divTopico.innerHTML = `
+                        <h3>${topico.titulo}</h3>
+                        <p><strong>Autor:</strong> ${topico.autor}</p>
+                        <p><strong>Curso:</strong> ${topico.curso}</p>
+                        <p><strong>Fecha:</strong> ${fecha}</p>
+                    `;
+                    listaDiv.appendChild(divTopico);
+
+                    // Añadir a la tabla
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${topico.titulo}</td>
+                        <td>${topico.autor}</td>
+                        <td>${topico.curso}</td>
+                        <td>${fecha}</td>
+                    `;
+                    tablaBody.appendChild(tr);
+                });
+
+            } catch (err) {
+                loadingDiv.style.display = 'none';
+                errorDiv.textContent = `No se pudieron cargar los tópicos: ${err.message}`;
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        // Cargar los datos cuando la página esté lista
+        document.addEventListener('DOMContentLoaded', fetchTopicos);
+    </script>
+
+</body>
+</html>
