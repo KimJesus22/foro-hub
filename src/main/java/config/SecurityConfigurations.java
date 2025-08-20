@@ -37,11 +37,17 @@ public class SecurityConfigurations {
                         .requestMatchers(
                                 "/",
                                 "/index.html",
-                                "/topicos.html", // <-- AÑADIDO
+                                "/topicos.html",
                                 "/favicon.ico",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**"
+                        ).permitAll()
+                        // Permitir acceso a Swagger UI
+                        .requestMatchers(
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
                         ).permitAll()
                         .requestMatchers("/auth/**").permitAll() // login/registro públicos
                         .requestMatchers(HttpMethod.GET, "/topicos").permitAll()
