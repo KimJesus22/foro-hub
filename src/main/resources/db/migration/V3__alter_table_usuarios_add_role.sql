@@ -1,3 +1,8 @@
+-- Actualizar roles existentes para quitar el prefijo ROLE_ si existe
+UPDATE usuarios SET role = 'ADMIN' WHERE role = 'ROLE_ADMIN';
+UPDATE usuarios SET role = 'USER' WHERE role = 'ROLE_USER';
+UPDATE usuarios SET role = 'READER' WHERE role = 'ROLE_READER';
+
 -- Crear un usuario administrador por defecto si no existe
 -- La contraseña por defecto es "123456" (hasheada con BCrypt)
 INSERT INTO usuarios (login, password, role)
