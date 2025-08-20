@@ -33,27 +33,21 @@ public class SecurityConfigurations {
 
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // Permitir acceso a recursos estáticos y rutas públicas
+                        // Permitir acceso a recursos estáticos, Swagger y rutas públicas
                         .requestMatchers(
-                                "/",
-                                "/index.html",
-                                "/topicos.html",
-                                "/favicon.ico",
-                                "/css/**",
-                                "/js/**",
-                                "/images/**"
+                                "/", "/index.html", "/topicos.html", "/favicon.ico",
+                                "/css/**", "/js/**", "/images/**",
+                                "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**"
                         ).permitAll()
-                        // Permitir acceso a Swagger UI
-                        .requestMatchers(
-                                "/swagger-ui.html",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**"
-                        ).permitAll()
-                        .requestMatchers("/auth/**").permitAll() // login/registro públicos
-                        .requestMatchers(HttpMethod.GET, "/topicos").permitAll()
-                        // ⬇️ Ajusta una de las dos líneas según prefieras roles o authorities
-                        .requestMatchers(HttpMethod.POST, "/topicos").hasRole("ADMIN") // usa ROLE_ADMIN
-                        // .requestMatchers(HttpMethod.POST, "/topicos").hasAuthority("TOPICOS_WRITE") // o authority
+                        .requestMatchers("/auth/**").permitAll() // Login/registro es público
+
+                        // Reglas para Tópicos basadas en roles
+                        .requestMatchers(HttpMethod.GET, "/topicos/**").permitAll() // Cualquiera puede leer tópicos
+                        .requestMatchers(HttpMethod.POST, "/topicos").hasRole("ADMIN")      // Solo ADMIN puede crear
+                        .requestMatchers(HttpMethod.PUT, "/topicos/**").hasRole("ADMIN")   // Solo ADMIN puede actualizar
+                        .requestMatchers(HttpMethod.DELETE, "/topicos/**").hasRole("ADMIN") // Solo ADMIN puede eliminar
+
+                        // Todas las demás peticiones requieren autenticación
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
