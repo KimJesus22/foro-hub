@@ -6,18 +6,26 @@
     <title>Tópicos del Foro</title>
     <style>
         body { font-family: sans-serif; line-height: 1.6; margin: 2em; background-color: #f4f4f4; color: #333; }
+        .container { max-width: 900px; margin: auto; background-color: white; padding: 2em; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         h1, h2 { color: #0056b3; }
-        #loading, #error { text-align: center; font-size: 1.2em; padding: 1em; }
-        #error { color: #d9534f; }
+        #loading, #error, #form-status { text-align: center; font-size: 1.2em; padding: 1em; margin-top: 1em; border-radius: 5px; }
+        #error, #form-status.error { color: #d9534f; background-color: #f2dede; border: 1px solid #ebccd1; }
+        #form-status.success { color: #3c763d; background-color: #dff0d8; border: 1px solid #d6e9c6; }
         .topico { border-left: 4px solid #0056b3; padding-left: 1em; margin-bottom: 1.5em; }
         table { width: 100%; border-collapse: collapse; margin-top: 2em; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         th { background-color: #0056b3; color: white; }
         tr:nth-child(even) { background-color: #f2f2f2; }
+        form { margin-top: 3em; padding-top: 2em; border-top: 2px solid #eee; }
+        form div { margin-bottom: 1em; }
+        form label { display: block; margin-bottom: .5em; font-weight: bold; }
+        form input, form textarea { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        form button { background-color: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; }
+        form button:hover { background-color: #218838; }
     </style>
 </head>
 <body>
-
+<div class="container">
     <h1>Tópicos Recientes del Foro</h1>
 
     <div id="loading">Cargando tópicos...</div>
@@ -36,79 +44,137 @@
                 <th>Fecha de Creación</th>
             </tr>
         </thead>
-        <tbody>
-            <!-- Los datos se insertarán aquí -->
-        </tbody>
+        <tbody></tbody>
     </table>
 
-    <script>
-        // La URL base de la API (ajusta si es necesario)
-        const API_URL = window.location.origin;
+    <!-- Formulario para crear un nuevo tópico -->
+    <form id="form-crear-topico">
+        <h2>Crear Nuevo Tópico</h2>
+        <div>
+            <label for="jwt-token">Token JWT (Rol ADMIN requerido)</label>
+            <input type="text" id="jwt-token" name="jwt-token" placeholder="Pega tu token de administrador aquí" required>
+        </div>
+        <div>
+            <label for="titulo">Título</label>
+            <input type="text" id="titulo" name="titulo" required>
+        </div>
+        <div>
+            <label for="mensaje">Mensaje</label>
+            <textarea id="mensaje" name="mensaje" rows="4" required></textarea>
+        </div>
+        <div>
+            <label for="autor">Autor</label>
+            <input type="text" id="autor" name="autor" required>
+        </div>
+        <div>
+            <label for="curso">Curso</label>
+            <input type="text" id="curso" name="curso" required>
+        </div>
+        <button type="submit">Crear Tópico</button>
+        <div id="form-status" style="display:none;"></div>
+    </form>
+</div>
 
-        async function fetchTopicos() {
-            const loadingDiv = document.getElementById('loading');
-            const errorDiv = document.getElementById('error');
-            const listaDiv = document.getElementById('lista-topicos');
-            const tablaBody = document.querySelector('#tabla-topicos tbody');
+<script>
+    const API_URL = window.location.origin;
 
-            try {
-                const response = await fetch(`${API_URL}/topicos`);
+    async function fetchTopicos() {
+        // ... (código existente para cargar tópicos)
+    }
 
-                if (!response.ok) {
-                    throw new Error(`Error en la petición: ${response.statusText}`);
-                }
+    async function handleFormSubmit(event) {
+        event.preventDefault();
+        const form = event.target;
+        const statusDiv = document.getElementById('form-status');
+        const token = document.getElementById('jwt-token').value;
 
-                const topicos = await response.json();
-
-                // Ocultar mensaje de carga
-                loadingDiv.style.display = 'none';
-
-                // Limpiar contenedores
-                listaDiv.innerHTML = '';
-                tablaBody.innerHTML = '';
-
-                if (topicos.length === 0) {
-                    listaDiv.innerHTML = '<p>No hay tópicos para mostrar.</p>';
-                    return;
-                }
-
-                // Poblar la lista y la tabla
-                topicos.forEach(topico => {
-                    // Formatear fecha
-                    const fecha = new Date(topico.fechaCreacion).toLocaleString();
-
-                    // Añadir a la lista
-                    const divTopico = document.createElement('div');
-                    divTopico.className = 'topico';
-                    divTopico.innerHTML = `
-                        <h3>${topico.titulo}</h3>
-                        <p><strong>Autor:</strong> ${topico.autor}</p>
-                        <p><strong>Curso:</strong> ${topico.curso}</p>
-                        <p><strong>Fecha:</strong> ${fecha}</p>
-                    `;
-                    listaDiv.appendChild(divTopico);
-
-                    // Añadir a la tabla
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${topico.titulo}</td>
-                        <td>${topico.autor}</td>
-                        <td>${topico.curso}</td>
-                        <td>${fecha}</td>
-                    `;
-                    tablaBody.appendChild(tr);
-                });
-
-            } catch (err) {
-                loadingDiv.style.display = 'none';
-                errorDiv.textContent = `No se pudieron cargar los tópicos: ${err.message}`;
-                errorDiv.style.display = 'block';
-            }
+        if (!token) {
+            statusDiv.textContent = 'Error: El token JWT es obligatorio.';
+            statusDiv.className = 'error';
+            statusDiv.style.display = 'block';
+            return;
         }
 
-        // Cargar los datos cuando la página esté lista
-        document.addEventListener('DOMContentLoaded', fetchTopicos);
-    </script>
+        const data = {
+            titulo: form.titulo.value,
+            mensaje: form.mensaje.value,
+            autor: form.autor.value,
+            curso: form.curso.value
+        };
+
+        try {
+            const response = await fetch(`${API_URL}/topicos`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.status === 201) {
+                statusDiv.textContent = '¡Tópico creado con éxito!';
+                statusDiv.className = 'success';
+                form.reset();
+                fetchTopicos(); // Recargar la lista de tópicos
+            } else {
+                const errorData = await response.json();
+                const errorMessage = errorData.message || `Error ${response.status}: ${response.statusText}`;
+                throw new Error(errorMessage);
+            }
+        } catch (err) {
+            statusDiv.textContent = `Error al crear el tópico: ${err.message}`;
+            statusDiv.className = 'error';
+        } finally {
+            statusDiv.style.display = 'block';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchTopicos();
+        const form = document.getElementById('form-crear-topico');
+        form.addEventListener('submit', handleFormSubmit);
+    });
+
+    // El código de fetchTopicos() se mantiene igual que antes
+    async function fetchTopicos() {
+        const loadingDiv = document.getElementById('loading');
+        const errorDiv = document.getElementById('error');
+        const listaDiv = document.getElementById('lista-topicos');
+        const tablaBody = document.querySelector('#tabla-topicos tbody');
+
+        try {
+            const response = await fetch(`${API_URL}/topicos`);
+            if (!response.ok) throw new Error(`Error en la petición: ${response.statusText}`);
+            const topicos = await response.json();
+
+            loadingDiv.style.display = 'none';
+            listaDiv.innerHTML = '';
+            tablaBody.innerHTML = '';
+
+            if (topicos.length === 0) {
+                listaDiv.innerHTML = '<p>No hay tópicos para mostrar.</p>';
+                return;
+            }
+
+            topicos.forEach(topico => {
+                const fecha = new Date(topico.fechaCreacion).toLocaleString();
+                const divTopico = document.createElement('div');
+                divTopico.className = 'topico';
+                divTopico.innerHTML = `<h3>${topico.titulo}</h3><p><strong>Autor:</strong> ${topico.autor}</p><p><strong>Curso:</strong> ${topico.curso}</p><p><strong>Fecha:</strong> ${fecha}</p>`;
+                listaDiv.appendChild(divTopico);
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${topico.titulo}</td><td>${topico.autor}</td><td>${topico.curso}</td><td>${fecha}</td>`;
+                tablaBody.appendChild(tr);
+            });
+        } catch (err) {
+            loadingDiv.style.display = 'none';
+            errorDiv.textContent = `No se pudieron cargar los tópicos: ${err.message}`;
+            errorDiv.style.display = 'block';
+        }
+    }
+</script>
 
 </body>
 </html>

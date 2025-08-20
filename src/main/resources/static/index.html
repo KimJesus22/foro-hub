@@ -1,10 +1,46 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>ForoHub API</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido a ForoHub API</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; margin: 2em; background-color: #f4f4f4; color: #333; }
+        .container { max-width: 800px; margin: auto; padding: 2em; background-color: white; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { color: #0056b3; }
+        p { margin-bottom: 1.5em; }
+        .links a {
+            display: block;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            background-color: #0056b3;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .links a:hover {
+            background-color: #004494;
+        }
+        .links a.secondary {
+            background-color: #6c757d;
+        }
+        .links a.secondary:hover {
+            background-color: #5a6268;
+        }
+    </style>
 </head>
 <body>
-    <h1>Bienvenido a la API de ForoHub</h1>
-    <p>El API está funcionando correctamente.</p>
+    <div class="container">
+        <h1>Bienvenido a la API de ForoHub</h1>
+        <p>
+            Esta es la página de inicio de la API de ForoHub. Desde aquí puedes navegar a los diferentes recursos disponibles.
+        </p>
+        <div class="links">
+            <a href="/topicos.html">🔗 Ver lista de tópicos (Vista formateada)</a>
+            <a href="/topicos" class="secondary">🔗 Ver JSON crudo de tópicos</a>
+            <a href="#" class="secondary">🔗 Ver documentación de la API (Próximamente)</a>
+        </div>
+    </div>
 </body>
 </html>
