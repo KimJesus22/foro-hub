@@ -2,11 +2,15 @@ package com.KimJesus.forohub.config;
 
 import com.KimJesus.forohub.model.Usuario;
 import com.KimJesus.forohub.repository.UsuarioRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
+@Profile("!production") // Este componente solo se activará si el perfil NO es 'production'
 public class DataLoader implements CommandLineRunner {
 
     private final UsuarioRepository usuarioRepository;
@@ -16,6 +20,8 @@ public class DataLoader implements CommandLineRunner {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
     }
+
+    private static final Logger log = LoggerFactory.getLogger(DataLoader.class);
 
     @Override
     public void run(String... args) {
@@ -29,9 +35,9 @@ public class DataLoader implements CommandLineRunner {
             usuario.setRole("ROLE_USER");
 
             usuarioRepository.save(usuario);
-            System.out.println("✅ Usuario creado: " + login + " / contraseña: " + rawPassword);
+            log.info("✅ Usuario de prueba creado: {} / contraseña: {}", login, rawPassword);
         } else {
-            System.out.println("ℹ Usuario ya existe: " + login);
+            log.info("ℹ Usuario de prueba ya existe: {}", login);
         }
     }
 }

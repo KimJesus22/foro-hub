@@ -30,10 +30,8 @@ public class AutenticacionController {
                 new UsernamePasswordAuthenticationToken(loginDTO.login(), loginDTO.password())
         );
 
-        String token = tokenService.generarToken(loginDTO.login());
+        // Es mejor práctica obtener el principal del objeto Authentication
+        String token = tokenService.generarToken(authentication.getName());
         return ResponseEntity.ok(Map.of("token", token));
     }
 }
-
-
-

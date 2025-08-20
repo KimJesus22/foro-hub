@@ -19,7 +19,7 @@ public class Topico {
     @Column(columnDefinition = "TEXT")
     private String mensaje;
 
-    private LocalDateTime fechaCreacion = LocalDateTime.now();
+    private final LocalDateTime fechaCreacion = LocalDateTime.now();
 
     private String status = "ABIERTO";
 
