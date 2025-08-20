@@ -15,6 +15,10 @@
         .container { margin-top: 2em; margin-bottom: 2em; }
         h1, h2 { color: #0d6efd; }
         .card-header { background-color: #0d6efd; color: white; }
+        /* Evitar que el texto largo rompa la tabla */
+        #tabla-topicos td {
+            word-break: break-word;
+        }
     </style>
 </head>
 <body>
@@ -41,17 +45,20 @@
             <h2>Tabla de Tópicos</h2>
         </div>
         <div class="card-body">
-            <table id="tabla-topicos" class="table table-striped table-hover" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>Título</th>
-                        <th>Autor</th>
-                        <th>Curso</th>
-                        <th>Fecha de Creación</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+            <div class="table-responsive">
+                <table id="tabla-topicos" class="table table-striped table-hover" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Mensaje</th>
+                            <th>Autor</th>
+                            <th>Curso</th>
+                            <th>Fecha de Creación</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -62,44 +69,15 @@
         </div>
         <div class="card-body">
             <form id="form-crear-topico" class="needs-validation" novalidate>
-                <div class="mb-3">
-                    <label for="jwt-token" class="form-label">Token JWT (Rol ADMIN requerido)</label>
-                    <input type="text" class="form-control" id="jwt-token" placeholder="Pega tu token de administrador aquí" required>
-                    <div class="invalid-feedback">Por favor, introduce un token JWT.</div>
-                </div>
-                <div class="mb-3">
-                    <label for="titulo" class="form-label">Título</label>
-                    <input type="text" class="form-control" id="titulo" required maxlength="100">
-                    <div class="invalid-feedback">El título es obligatorio.</div>
-                </div>
-                <div class="mb-3">
-                    <label for="mensaje" class="form-label">Mensaje</label>
-                    <textarea class="form-control" id="mensaje" rows="4" required maxlength="500"></textarea>
-                    <div class="invalid-feedback">El mensaje es obligatorio.</div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="autor" class="form-label">Autor</label>
-                        <input type="text" class="form-control" id="autor" required>
-                        <div class="invalid-feedback">El autor es obligatorio.</div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="curso" class="form-label">Curso</label>
-                        <input type="text" class="form-control" id="curso" required>
-                        <div class="invalid-feedback">El curso es obligatorio.</div>
-                    </div>
-                </div>
-                <button class="btn btn-success btn-lg" type="submit">Crear Tópico</button>
+                <!-- ... (resto del formulario sin cambios) ... -->
             </form>
         </div>
     </div>
 </div>
 
-<!-- jQuery (necesario para DataTables) -->
+<!-- jQuery, Bootstrap, DataTables JS... -->
 <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-<!-- Bootstrap 5 JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<!-- DataTables JS -->
 <script type="text/javascript" src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
@@ -108,7 +86,76 @@
     let dataTable;
     let notificationToast;
 
-    // Función para mostrar notificaciones toast
+    function showToast(message, isError = false) { /* ... (sin cambios) ... */ }
+
+    async function fetchTopicos() {
+        try {
+            const response = await fetch(`${API_URL}/topicos`);
+            if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+            const topicos = await response.json();
+
+            // MODIFICADO: Añadir el campo 'mensaje' a los datos de la tabla
+            const data = topicos.map(t => ([
+                t.titulo,
+                t.mensaje, // <-- MENSAJE AÑADIDO
+                t.autor,
+                t.curso,
+                new Date(t.fechaCreacion).toLocaleString()
+            ]));
+
+            if (dataTable) {
+                dataTable.clear().rows.add(data).draw();
+            }
+
+        } catch (err) {
+            showToast(`No se pudieron cargar los tópicos: ${err.message}`, true);
+        }
+    }
+
+    async function handleFormSubmit(event) { /* ... (sin cambios) ... */ }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        dataTable = new DataTable('#tabla-topicos');
+        notificationToast = new bootstrap.Toast(document.getElementById('notificationToast'));
+        
+        fetchTopicos();
+
+        const form = document.getElementById('form-crear-topico');
+        // Rellenar el formulario para que no se vea vacío
+        form.innerHTML = `
+            <div class="mb-3">
+                <label for="jwt-token" class="form-label">Token JWT (Rol ADMIN requerido)</label>
+                <input type="text" class="form-control" id="jwt-token" placeholder="Pega tu token de administrador aquí" required>
+                <div class="invalid-feedback">Por favor, introduce un token JWT.</div>
+            </div>
+            <div class="mb-3">
+                <label for="titulo" class="form-label">Título</label>
+                <input type="text" class="form-control" id="titulo" required maxlength="100">
+                <div class="invalid-feedback">El título es obligatorio.</div>
+            </div>
+            <div class="mb-3">
+                <label for="mensaje" class="form-label">Mensaje</label>
+                <textarea class="form-control" id="mensaje" rows="4" required maxlength="500"></textarea>
+                <div class="invalid-feedback">El mensaje es obligatorio.</div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="autor" class="form-label">Autor</label>
+                    <input type="text" class="form-control" id="autor" required>
+                    <div class="invalid-feedback">El autor es obligatorio.</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="curso" class="form-label">Curso</label>
+                    <input type="text" class="form-control" id="curso" required>
+                    <div class="invalid-feedback">El curso es obligatorio.</div>
+                </div>
+            </div>
+            <button class="btn btn-success btn-lg" type="submit">Crear Tópico</button>
+        `;
+        form.addEventListener('submit', handleFormSubmit);
+    });
+
+    // El resto de funciones (showToast, handleFormSubmit) se mantienen igual
     function showToast(message, isError = false) {
         const toastBody = notificationToast._element.querySelector('.toast-body');
         toastBody.textContent = message;
@@ -122,27 +169,6 @@
         notificationToast.show();
     }
 
-    // Cargar y poblar la tabla con DataTables
-    async function fetchTopicos() {
-        try {
-            const response = await fetch(`${API_URL}/topicos`);
-            if (!response.ok) throw new Error(`Error: ${response.statusText}`);
-            const topicos = await response.json();
-
-            const data = topicos.map(t => ([
-                t.titulo,
-                t.autor,
-                t.curso,
-                new Date(t.fechaCreacion).toLocaleString()
-            ]));
-
-            dataTable.clear().rows.add(data).draw();
-        } catch (err) {
-            showToast(`No se pudieron cargar los tópicos: ${err.message}`, true);
-        }
-    }
-
-    // Manejar el envío del formulario
     async function handleFormSubmit(event) {
         const form = event.target;
         event.preventDefault();
@@ -182,17 +208,6 @@
             showToast(`Error al crear el tópico: ${err.message}`, true);
         }
     }
-
-    // Inicialización cuando el DOM está listo
-    document.addEventListener('DOMContentLoaded', () => {
-        dataTable = new DataTable('#tabla-topicos');
-        notificationToast = new bootstrap.Toast(document.getElementById('notificationToast'));
-        
-        fetchTopicos();
-
-        const form = document.getElementById('form-crear-topico');
-        form.addEventListener('submit', handleFormSubmit);
-    });
 </script>
 
 </body>
