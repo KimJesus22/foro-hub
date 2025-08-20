@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import com.KimJesus.forohub.service.TokenService;
@@ -30,8 +31,9 @@ public class AutenticacionController {
                 new UsernamePasswordAuthenticationToken(loginDTO.login(), loginDTO.password())
         );
 
-        // Es mejor práctica obtener el principal del objeto Authentication
-        String token = tokenService.generarToken(authentication.getName());
+        // El principal es el usuario autenticado
+        var usuarioAutenticado = (UserDetails) authentication.getPrincipal();
+        String token = tokenService.generarToken(usuarioAutenticado);
         return ResponseEntity.ok(Map.of("token", token));
     }
 }
