@@ -43,7 +43,7 @@ public class SecurityConfigurations {
 
                         // Reglas para Tópicos basadas en roles
                         .requestMatchers(HttpMethod.GET, "/topicos/**").permitAll() // Cualquiera puede leer tópicos
-                        .requestMatchers(HttpMethod.POST, "/topicos").hasRole("ADMIN")      // Solo ADMIN puede crear
+                        .requestMatchers(HttpMethod.POST, "/topicos").hasAnyRole("ADMIN", "USER")      // ADMIN y USER pueden crear
                         .requestMatchers(HttpMethod.PUT, "/topicos/**").hasRole("ADMIN")   // Solo ADMIN puede actualizar
                         .requestMatchers(HttpMethod.DELETE, "/topicos/**").hasRole("ADMIN") // Solo ADMIN puede eliminar
 
